@@ -3,7 +3,7 @@ from django.template import RequestContext
 from signUp import models
 from .forms import SignUpForm
 
-
+ 
 # Create your views here.
 
 # 报考系统首页
