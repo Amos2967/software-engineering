@@ -6,7 +6,7 @@ from .models import Student, Teacher, Paper, Question, ExamPlace, Grade
 admin.site.site_header = '英语四六级报考系统后台'
 admin.site.site_title = '英语四六级报考系统'
 
-#学生
+
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
     # 要显示哪些信息
@@ -15,7 +15,7 @@ class StudentAdmin(admin.ModelAdmin):
     search_fields = ['name', 'dept', 'major', 'birth']  # 指定要搜索的字段，将会出现一个搜索框让管理员搜索关键词
     list_filter = ['name', 'dept', 'major', 'birth']  # 指定列表过滤器，右边将会出现一个快捷的过滤选项
 
-#老师
+
 @admin.register(Teacher)
 class TeacherAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'sex', 'dept', 'password', 'email', 'birth')

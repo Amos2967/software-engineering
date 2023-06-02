@@ -3,7 +3,7 @@ from django.template import RequestContext
 from signUp import models
 from .forms import SignUpForm
 
- 
+
 # Create your views here.
 
 # 报考系统首页
@@ -40,7 +40,38 @@ def studentLogin(request):
 
 
 # 教师登陆 视图函数
+def teacherLogin(request):
+    if request.method == 'POST':
+        teaId = request.POST.get('id')
+        password = request.POST.get('password')
+        teacher = models.Teacher.objects.get(id=teaId)
+        print(teaId)
+        if password == teacher.password:  # 登录成功
+            # 实现成绩统计功能
+            # 在试卷表 paper 找到该老师发布的试题
+            paper = models.Paper.objects.filter(tid=teaId)
 
+            data1 = models.Grade.objects.filter(type='CET4', grade__lt=360).count()
+            data2 = models.Grade.objects.filter(type='CET4', grade__gte=360, grade__lt=425).count()
+            data3 = models.Grade.objects.filter(type='CET4', grade__gte=425, grade__lt=500).count()
+            data4 = models.Grade.objects.filter(type='CET4', grade__gte=500, grade__lt=600).count()
+            data5 = models.Grade.objects.filter(type='CET4', grade__gte=600).count()
+
+            data6 = models.Grade.objects.filter(type='CET6', grade__lt=360).count()
+            data7 = models.Grade.objects.filter(type='CET6', grade__gte=360, grade__lt=425).count()
+            data8 = models.Grade.objects.filter(type='CET6', grade__gte=425, grade__lt=500).count()
+            data9 = models.Grade.objects.filter(type='CET6', grade__gte=500, grade__lt=600).count()
+            data10 = models.Grade.objects.filter(type='CET6', grade__gte=600).count()
+
+            data_1 = {'data1': data1, 'data2': data2, 'data3': data3, 'data4': data4, 'data5': data5}
+            data_2 = {'data6': data6, 'data7': data7, 'data8': data8, 'data9': data9, 'data10': data10}
+
+            print("数量：", data2)
+            return render(request, 'teacher.html',
+                          {'teacher': teacher, 'paper': paper, 'data_1': data_1, 'data_2': data_2})
+
+        else:
+            return render(request, 'index.html', {'message': '密码不正确'})
 
 
 # 报名四级
@@ -140,9 +171,55 @@ def startExam(request):
     return render(request, 'exam.html', {'student': student, 'place': place, 'paper': paper})
 
 
+# 计算由exam.html模版传过来的数据计算成绩
+def calGrade(request):
+    if request.method == 'POST':
+        # 得到学号和科目
+        sid = request.POST.get('sid')
+        placeId = request.POST.get('pid')
+
+        # 重新生成Student实例，Paper实例，Place实例，名字和index中for的一致，可重复渲染
+        student = models.Student.objects.get(id=sid)
+        place = models.ExamPlace.objects.get(id=placeId)
+        grades = models.Grade.objects.get(sid=sid, pid=placeId)
+
+        # 计算该门考试的学生成绩
+        question = models.Paper.objects.filter(id=place.pid).values("qid").values('qid__id', 'qid__answer',
+                                                                                  'qid__score')
+        mygrade = 0  # 初始化一个成绩为0
+        for q in question:
+            qId = str(q['qid__id'])  # int 转 string,通过qid找到题号
+            myans = request.POST.get(qId)  # 通过 qid 得到学生关于该题的作答
+            # print(myans)
+            okans = q['qid__answer']  # 得到正确答案
+            # print(okans)
+            if myans == okans:  # 判断学生作答与正确答案是否一致
+                mygrade += q['qid__score']  # 若一致,得到该题的分数,累加mygrade变量
+
+        # Grade表更新数据
+        grades.grade = mygrade
+        grades.save()
+        # print(mygrade)
+
+        # Student表更新数据,取更大的
+        if place.type == 'CET4':
+            student.f_score = max(mygrade, student.f_score)
+        else:
+            student.s_score = max(mygrade, student.s_score)
+
+        # 重新渲染index.html模板
+        place = models.ExamPlace.objects.all().order_by("time")
+        grade = models.Grade.objects.filter(sid=sid)
+        # 查询考试信息（exam是有报名的place)
+        grade_pid = []
+        for i in range(len(grade)):
+            grade_pid.append(grade[i].pid)
+        # __in表示数据库中的in操作符，等价于id in grade_pid
+        exam = models.ExamPlace.objects.filter(id__in=grade_pid)
+        return render(request, 'index.html', {'student': student, 'place': place, 'exam': exam, 'grade': grade})
 
 
-# 按条件查询学生
+# 教师按条件查询学生
 def queryStudent(request):
     # 获取教师查询的条件值
     sid = request.GET.get('id')
@@ -164,6 +241,11 @@ def queryStudent(request):
     result = dictfetchall(cursor)
     # print(result)
     return render(request, 'teacher.html', {'teacher': teacher, 'result': result, 'paper': paper})
+
+
+# 教师退出
+def logOut(request):
+    return redirect('/')
 
 
 # 将使用原生sql语句查到的结果由tuple类型转换为dictionary(字典)类型
