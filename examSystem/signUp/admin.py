@@ -7,7 +7,7 @@ admin.site.site_header = '英语四六级报考系统后台'
 admin.site.site_title = '英语四六级报考系统'
 
 
-@admin.register(Student)
+@admin.register(Student) 
 class StudentAdmin(admin.ModelAdmin):
     # 要显示哪些信息
     list_display = ('id', 'name', 'sex', 'school', 'dept', 'major', 'password', 'email', 'birth', 'f_score', 's_score')
