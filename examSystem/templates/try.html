@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>英语四六级考试报名系统</title>
+    <style type="text/css">
+			#content{
+				position: absolute;
+				top: 35%;/*顶部到元素*/
+				left:37%;
+				width: 30%;
+				height:250px;
+				margin-top:-200;/*边缘到底部*/
+				background-color: #B0E0F9;
+				text-align-last: center;
+				border: 3px solid black;
+				border-radius: 15px;
+				/*这里做一个半透明效果*/
+				filter:alpha(Opacity=60);
+				-moz-opacity:0.8;
+				opacity: 0.8;
+			}
+			#denglu{
+				background-color: pink;
+				border-radius:10px;
+             	border:0;/*边框宽度0*/
+            	height:65px;
+             	width:140px;
+            	padding:5px 10px;/*上下填充10 左右5*/
+            	font-size: 25px;
+			}
+			#zhuce{
+				background-color: pink;
+				border-radius:10px;
+             	border:0;/*边框宽度0*/
+            	height:65px;
+             	width:140px;
+            	padding:5px 10px;/*上下填充10 左右5*/
+            	font-size: 25px;
+			}
+			#content h1{
+				color: black;
+				font-size: 50px;
+			}
+    </style>
+</head>
+<body style="background-image: url({% static 'img/bg3.png' %});
+             background-size: 80% ;
+             background-repeat: repeat-x;
+             background-attachment: fixed;" >
+
+<div id="content">
+    <h1 >Welcome!</h1><br />
+    <form action="#"method="post" >
+        <a href="index" target="_blank"><input type="button" name="denglu"id="denglu"value="前往登录"/></a>
+        <a href="register" target="_blank"><input type="button" name="zhuce"id="zhuce"value="前往注册"/></a>
+    </form>
+</div>
+
+
+</body>
+
+</html>

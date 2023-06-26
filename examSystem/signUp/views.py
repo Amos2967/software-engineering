@@ -7,8 +7,18 @@ from .forms import SignUpForm
 # Create your views here.
 
 # 报考系统首页
+def nindex(request):
+    return render(request, 'try.html')
+
+
+# 登录首页
 def index(request):
     return render(request, 'index.html')
+
+
+# 注册首页
+def register(request):
+    return render(request, 'register.html')
 
 
 # 学生登陆 视图函数

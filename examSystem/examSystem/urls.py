@@ -22,14 +22,18 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     # 默认访问首页
-    url(r'^$', views.index),
+    url(r'^$', views.nindex),
     # 学生登陆
     url(r'^studentLogin/', views.studentLogin),
     # 教师登陆
     url(r'^teacherLogin/', views.teacherLogin),
     # 学生报名
-    path('cet4/', views.cet4),  # 四级报名
-    path('cet6/', views.cet6),  # 六级报名
+    # 四级报名
+    path('cet4/', views.cet4),
+    path('index/', views.index),
+    path('register/', views.register,),
+    # 六级报名
+    path('cet6/', views.cet6),
 
     # 考试界面
     url(r'^startExam/$', views.startExam),
