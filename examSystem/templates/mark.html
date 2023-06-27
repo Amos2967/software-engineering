@@ -52,6 +52,7 @@
 				<form action="/calSubGrade/" method="post">{% csrf_token %}
                 <input type="hidden" name="sid" value="{{ student.id }}">
                 <input type="hidden" name="pid" value="{{ place.id }}">
+				<input type="hidden" name="tid" value="{{ teacher.id }}">
 					<div class="test_title">
 						<font><input type="submit" name="mark" value="批改完成"></font>
 					</div>
@@ -76,12 +77,12 @@
 									<div class="test_content_nr_main">
 										<ul>
 											<!--下面这个如果不写在一行，就会有很多余的空行!-->
-											<textarea cols="100" rows="15" name="sq{{ subtest.id }} readonly">{% for stuSub, sqid in stuSub_list %}{% if subtest.id == sqid %}{{stuSub.answer}}{% endif %}{% endfor%}</textarea>
+											<textarea cols="100" rows="15" name="sq{{ subtest.id }}" readonly>{% for stuSub, sqid in stuSub_list %}{% if subtest.id == sqid %}{{stuSub.answer}}{% endif %}{% endfor%}</textarea>
 											</br>
 											<label>
-												<p class="ue" style="display: inline;">给分:</p>
+												<p class="ue" style="display: inline;">给分(满分10分):</p>
 											</label>
-											<input type="text" name="sqsore{{ subtest.id }}"/>
+											<input type="number" min="0" max="10" name="sqsore{{ subtest.id }}"/>
 										</ul>
 									</div>
 								   </li>

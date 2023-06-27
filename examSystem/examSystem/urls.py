@@ -49,5 +49,9 @@ urlpatterns = [
     url(r'^correSub/$', views.correSub),
     # 批改试卷的页面
     url(r'^mark/$', views.mark),
+    # 记录主观题给分
+    url(r'^calSubGrade/$', views.calSubGrade),
+    # 重回教师主页面
+    url(r'^teacherReIndex/$', views.teacherReIndex),
 
 ]

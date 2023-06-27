@@ -77,7 +77,7 @@
           <td>{{ place.time }}</td>
           <td>
               {% if place.id == '2' or place.id == '4' %}
-                <a href="/teacherReIndex/?pid={{ place.id }}">
+                <a href="/teacherReIndex/?pid={{ place.id }}&tid={{ teacher.id }}">
                 <button class="btn btn-primary" id="cet_btn">返回</button>
               {% else %}
                   批改已结束
@@ -111,7 +111,7 @@
           <td>{{ student1.dept}}</td>
           <td>{{ student1.major }}</td>
           <td>
-             <a href="/mark/?sid={{ student1.id }}&pid={{ place.id }}">
+             <a href="/mark/?sid={{ student1.id }}&pid={{ place.id }}&tid={{ teacher.id }}">
                 <button class="btn btn-primary" id="cet_btn1">批改</button>
              </a>
           </td>

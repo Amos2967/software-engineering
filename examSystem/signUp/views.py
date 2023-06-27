@@ -56,7 +56,7 @@ def teacherLogin(request):
         teaId = request.POST.get('id')
         password = request.POST.get('password')
         teacher = models.Teacher.objects.get(id=teaId)
-        print(teaId)
+        # print(teaId)
         if password == teacher.password:  # 登录成功
             # 实现成绩统计功能
             # 在试卷表 paper 找到该老师发布的试题
@@ -84,6 +84,34 @@ def teacherLogin(request):
 
         else:
             return render(request, 'index.html', {'message': '密码不正确'})
+
+
+def teacherReIndex(request):
+    teaId = request.GET.get('tid')
+    teacher = models.Teacher.objects.get(id=teaId)
+
+    # 在试卷表 paper 找到该老师发布的试题
+    paper = models.Paper.objects.filter(tid=teaId)
+    place = models.ExamPlace.objects.all().order_by("-time")
+
+    data1 = models.Grade.objects.filter(type='CET4', grade__lt=360).count()
+    data2 = models.Grade.objects.filter(type='CET4', grade__gte=360, grade__lt=425).count()
+    data3 = models.Grade.objects.filter(type='CET4', grade__gte=425, grade__lt=500).count()
+    data4 = models.Grade.objects.filter(type='CET4', grade__gte=500, grade__lt=600).count()
+    data5 = models.Grade.objects.filter(type='CET4', grade__gte=600).count()
+
+    data6 = models.Grade.objects.filter(type='CET6', grade__lt=360).count()
+    data7 = models.Grade.objects.filter(type='CET6', grade__gte=360, grade__lt=425).count()
+    data8 = models.Grade.objects.filter(type='CET6', grade__gte=425, grade__lt=500).count()
+    data9 = models.Grade.objects.filter(type='CET6', grade__gte=500, grade__lt=600).count()
+    data10 = models.Grade.objects.filter(type='CET6', grade__gte=600).count()
+
+    data_1 = {'data1': data1, 'data2': data2, 'data3': data3, 'data4': data4, 'data5': data5}
+    data_2 = {'data6': data6, 'data7': data7, 'data8': data8, 'data9': data9, 'data10': data10}
+
+    print("数量：", data2)
+    return render(request, 'teacher.html',
+                  {'teacher': teacher, 'place': place, 'paper': paper, 'data_1': data_1, 'data_2': data_2})
 
 
 # 报名四级
@@ -243,6 +271,48 @@ def calGrade(request):
         return render(request, 'index.html', {'student': student, 'place': place, 'exam': exam, 'grade': grade})
 
 
+# 记录主观题给分
+def calSubGrade(request):
+    if request.method == 'POST':
+        sid = request.POST.get('sid')
+        tid = request.POST.get('tid')
+        placeId = request.POST.get('pid')
+
+        # 重新生成Student实例，Paper实例，Place实例，名字和index中for的一致，可重复渲染
+        teacher = models.Teacher.objects.get(id=tid)
+        student = models.Student.objects.get(id=sid)
+        place = models.ExamPlace.objects.get(id=placeId)
+        grades = models.Grade.objects.get(sid=sid, pid=placeId)
+
+        # 计算主观题总分
+        mygrade = 0
+        subQuestion = models.Paper.objects.filter(id=place.pid).values("sqid").values('sqid__id')
+        for sq in subQuestion:
+            sqId = str(sq['sqid__id'])  # int 转 string,通过sqid找到主观题号
+            myscore = request.POST.get('sqsore' + sqId)  # 通过 sqid 得到学生关于该题的作答
+            mygrade += int(myscore)
+
+        # Grade表更新数据
+        grades.subjectGrade = mygrade
+        grades.grade = grades.subjectGrade + grades.objectGrade
+        grades.save()
+
+        # Student表更新数据,取更大的
+        if place.type == 'CET4':
+            student.f_score = max(mygrade, student.f_score)
+        else:
+            student.s_score = max(mygrade, student.s_score)
+
+        # 获取参与此次考试的学生列表
+        grade = models.Grade.objects.filter(pid=placeId)
+        student_id = []
+        for i in range(len(grade)):
+            student_id.append(grade[i].sid)
+        # __in表示数据库中的in操作符
+        student_list = models.Student.objects.filter(id__in=student_id)
+        return render(request, 'teacher1.html', {'teacher': teacher, 'student': student_list, 'place': place})
+
+
 # 教师按条件查询学生
 def queryStudent(request):
     # 获取教师查询的条件值
@@ -298,6 +368,8 @@ def QR_out(request):
 def correSub(request):
     # 获取考点
     placeId = request.GET.get('pid')
+    teacherId = request.GET.get('tid')
+    teacher = models.Teacher.objects.get(id=teacherId)
     place = models.ExamPlace.objects.get(id=placeId)
     # 获取参与此次考试的学生列表
     grade = models.Grade.objects.filter(pid=placeId)
@@ -306,13 +378,15 @@ def correSub(request):
         student_id.append(grade[i].sid)
     # __in表示数据库中的in操作符
     student_list = models.Student.objects.filter(id__in=student_id)
-    return render(request, 'teacher1.html', {'student': student_list, 'place': place})
+    return render(request, 'teacher1.html', {'teacher': teacher, 'student': student_list, 'place': place})
 
 
 # 批改主页面
 def mark(request):
     sid = request.GET.get('sid')
     pid = request.GET.get('pid')
+    tid = request.GET.get('tid')
+    teacher = models.Teacher.objects.get(id=tid)
     student = models.Student.objects.get(id=sid)
     place = models.ExamPlace.objects.get(id=pid)
     paper = models.Paper.objects.get(id=place.pid)
@@ -322,5 +396,5 @@ def mark(request):
         sqid_list.append(int(str(stuSubs[i].sqid)))
     stuSub_list = zip(stuSubs, sqid_list)
 
-    return render(request, 'mark.html', {'student': student, 'place': place, 'paper': paper,
+    return render(request, 'mark.html', {'teacher': teacher, 'student': student, 'place': place, 'paper': paper,
                                          'stuSub_list': list(stuSub_list)})

@@ -135,7 +135,7 @@
           <td>{{ place1.time }}</td>
           <td>
               {% if place1.id == '2' or place1.id == '4' %}
-                <a href="/correSub/?pid={{ place1.id }}">
+                <a href="/correSub/?pid={{ place1.id }}&tid={{teacher.id}}">
                 <button class="btn btn-primary" id="cet_btn">批改试卷</button>
               {% else %}
                   批改已结束
