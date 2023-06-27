@@ -17,6 +17,11 @@ EXAM_TYPE = (
     ('CET4', 'CET4'),
     ('CET6', 'CET6'),
 )
+ID_TYPE = (
+    ('中华人民共和国居民身份证', '中华人民共和国居民身份证'),
+    ('港澳居民来往内地通行证', '港澳居民来往内地通行证'),
+    ('台湾居民来往大陆通行证', '台湾居民来往大陆通行证'),
+)
 
 
 # 学生表
@@ -32,6 +37,11 @@ class Student(models.Model):
     birth = models.DateField('出生日期')
     f_score = models.IntegerField("四级成绩", default=0)
     s_score = models.IntegerField("六级成绩", default=0)
+    ID_type = models.CharField('证件类型', max_length=20, choices=ID_TYPE, default='中华人民共和国居民身份证')
+    ID_NO = models.CharField('证据号码', max_length=20, default=None)
+    degree = models.CharField('学历', max_length=20, default=None)
+    notes = models.CharField('备注', max_length=20, default=None)
+    #現在的工作是跳转和增加条目
 
     class Meta:
         db_table = 'student'
@@ -117,7 +127,11 @@ class ExamPlace(models.Model):
     time = models.DateTimeField(default=0)
     # 添加外键,关联置空，因为试卷没了但考场还在，试卷注明是四级还是六级
     pid = models.ForeignKey(Paper, on_delete=models.CASCADE, default=None)
-
+    Ispay = models.CharField("支付状态", max_length=20,default='0')
+    #'0'是没缴费，‘1’是缴费
+    #不该加到这里，支付状态应该是学生和考试表的一个级联，我们先加，看看能不能正常显示
+    #需要新建一个视图而不是表，目前看起来没问题，只需要给一个默认值
+    # 但是在管理员add的html找不到相关信息。。。。。绝了
     def __str__(self):
         return self.id
 

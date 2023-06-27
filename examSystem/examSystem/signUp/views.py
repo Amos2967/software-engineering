@@ -2,14 +2,14 @@ from django.shortcuts import render, redirect
 from django.template import RequestContext
 from signUp import models
 from .forms import SignUpForm
-
+import qrcode
+from django.shortcuts import render
 
 # Create your views here.
 
 # 报考系统首页
 def nindex(request):
     return render(request, 'try.html')
-
 
 # 登录首页
 def index(request):
@@ -19,7 +19,6 @@ def index(request):
 # 注册首页
 def register(request):
     return render(request, 'register.html')
-
 
 # 学生登陆 视图函数
 def studentLogin(request):
@@ -114,6 +113,7 @@ def cet4(request):
                 # 考点容量减1,报考人数加1
                 examPlace.entry_number += 1
                 examPlace.save()
+                #直接在这里添加一个弹窗
                 return render(request, 'cet4.html', locals())
     # 用户点击“报名”按钮进入
     else:
@@ -266,3 +266,14 @@ def dictfetchall(cursor):
         dict(zip([col[0] for col in desc], row))
         for row in cursor.fetchall()
     ]
+
+#试试能不能显示一个二维码
+def QR_out(request):
+  input_text = request.GET['id']
+  img = qrcode.make(input_text)
+  img.save('examSystem/static/qr_code.png')
+  return render(request, 'examSystem/qr.html', {
+    'input_text': input_text,
+    'img': img,
+    'title': 'QR_out'
+  })

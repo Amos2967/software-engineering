@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-{% load static %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -18,10 +17,7 @@
     <title>英语四六级报考系统</title>
 
 </head>
-<body style="background-image: url({% static 'img/bg3.png' %});
-             background-size: 75% ;
-             background-repeat: repeat-x;
-             background-attachment: fixed;" >
+<body>
 
 <nav class="navbar navbar-expand-sm bg-light navbar-light ">
     <ul class="navbar-nav">
@@ -214,6 +210,7 @@
           <th>考点名称</th>
           <th>考试类别</th>
           <th>考试时间</th>
+          <th>支付状态</th>
           <th>操作</th>
       </tr>
     </thead>
@@ -228,6 +225,16 @@
           <td>{{ exam1.name }}</td>
           <td>{{ exam1.type }}</td>
           <td>{{ exam1.time }}</td>
+         <td>
+             {% if exam1.Ispay == '0' %}
+              <!--<a href="/QR_out/?sid={{ student.id }}&pid={{ exam1.id }}">-->
+             <button class="btn btn-primary" id="exam_btn0"data-target="#Pay" data-toggle="modal">缴费</button>
+                  <!--<button data-target="#stuModal" data-toggle="modal" class="btn btn-primary">学生登陆</button>-->
+             {% else %}
+                已缴费
+             {%endif%}
+                  </a>
+         </td>
           <td>
               {% if exam1.id == '2' or exam1.id == '4' %}
                 <a href="/startExam/?sid={{ student.id }}&pid={{ exam1.id }}">
@@ -281,28 +288,29 @@
   </div>
 </div>
 
-
 {#学生登录的模态对话框#}
 <div class="modal fade" tabindex="-1" role="dialog" id="stuModal">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
+
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
-                <h4 class="modal-title">学生登陆</h4>
+
+                <h4 class="modal-title">学生登陆1</h4>
             </div>
             <form class="form-horizontal" action="/studentLogin/" method="post">{% csrf_token %}
             <div class="modal-body">
 
                     <div class="form-group">
-                        <label class="col-sm-3 control-label">学生学号</label>
+                        <label class="col-sm-3 control-label">学生学号1</label>
                         <div class="col-sm-9">
                             <input type="text" class="form-control" name="id" placeholder="输入学号">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="addr" class="col-sm-3 control-label">密码</label>
+                        <label for="addr" class="col-sm-3 control-label">密码1</label>
                         <div class="col-sm-9">
                             <!--
                             <textarea id="addr" class="form-control" rows="3"></textarea>
@@ -368,3 +376,39 @@
     });
 </script>
 </html>
+{#缴费模态对话框#}
+<div class="modal fade" tabindex="-1" role="dialog" id="Pay">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+
+                <h4 class="modal-title">支付缴费</h4>
+            </div>
+            <!--<form class="form-horizontal" action="/studentLogin/" method="post">{% csrf_token %}-->
+            <!--预览图片-->
+                <div class="modal-body">
+                <div class="modal-body text-center">
+               <!-- -text-cente  bootstrap子元素居中--->
+                <span id="myImg">
+                	<!--预览图片位置，默认图片-->
+                    <img src="../static/qr_code.png" class="img-circle">
+                </span>
+
+            </div>
+   <!--                 <div>
+                    <img src="../static/qr_code.png" alt="图片"></div>-->
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal">完成缴费</button>
+            </div>
+            </form>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div>
