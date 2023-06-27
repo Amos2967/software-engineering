@@ -27,11 +27,16 @@ urlpatterns = [
     url(r'^studentLogin/', views.studentLogin),
     # 教师登陆
     url(r'^teacherLogin/', views.teacherLogin),
+
     # 学生报名
     path('cet4/', views.cet4),  # 四级报名
     path('cet6/', views.cet6),  # 六级报名
     path('index/', views.index),
     path('register/', views.register,),
+
+    # 缴费,废弃
+    url(r'^QR_out/$', views.QR_out),
+
     # 考试界面
     url(r'^startExam/$', views.startExam),
     # 交卷后统计客观题成绩
@@ -40,6 +45,9 @@ urlpatterns = [
     url('queryStudent', views.queryStudent),
     # 登出
     url(r'^logout/$', views.logOut),
-    # 缴费,废弃
-    url(r'^QR_out/$',views.QR_out)
+    # 教师批改主观题的目录
+    url(r'^correSub/$', views.correSub),
+    # 批改试卷的页面
+    url(r'^mark/$', views.mark),
+
 ]

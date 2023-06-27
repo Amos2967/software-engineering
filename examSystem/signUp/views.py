@@ -5,13 +5,14 @@ from .forms import SignUpForm
 import qrcode
 from django.shortcuts import render
 
-# Create your views here.
 
+# Create your views here.
 # 报考系统首页
 def nindex(request):
     return render(request, 'try.html')
 
-# 登录首页
+
+# 报考系统首页
 def index(request):
     return render(request, 'index.html')
 
@@ -19,6 +20,7 @@ def index(request):
 # 注册首页
 def register(request):
     return render(request, 'register.html')
+
 
 # 学生登陆 视图函数
 def studentLogin(request):
@@ -32,7 +34,7 @@ def studentLogin(request):
         print(student)
         if password == student.password:  # 登录成功
             # 查询考点信息
-            place = models.ExamPlace.objects.all().order_by("time")
+            place = models.ExamPlace.objects.all().order_by("-time")
             # 查询成绩信息
             grade = models.Grade.objects.filter(sid=student.id)
             # 查询考试信息（exam是有报名的place)
@@ -59,6 +61,7 @@ def teacherLogin(request):
             # 实现成绩统计功能
             # 在试卷表 paper 找到该老师发布的试题
             paper = models.Paper.objects.filter(tid=teaId)
+            place = models.ExamPlace.objects.all().order_by("-time")
 
             data1 = models.Grade.objects.filter(type='CET4', grade__lt=360).count()
             data2 = models.Grade.objects.filter(type='CET4', grade__gte=360, grade__lt=425).count()
@@ -77,7 +80,7 @@ def teacherLogin(request):
 
             print("数量：", data2)
             return render(request, 'teacher.html',
-                          {'teacher': teacher, 'paper': paper, 'data_1': data_1, 'data_2': data_2})
+                          {'teacher': teacher, 'place': place, 'paper': paper, 'data_1': data_1, 'data_2': data_2})
 
         else:
             return render(request, 'index.html', {'message': '密码不正确'})
@@ -113,7 +116,7 @@ def cet4(request):
                 # 考点容量减1,报考人数加1
                 examPlace.entry_number += 1
                 examPlace.save()
-                #直接在这里添加一个弹窗
+                # 直接在这里添加一个弹窗
                 return render(request, 'cet4.html', locals())
     # 用户点击“报名”按钮进入
     else:
@@ -193,13 +196,22 @@ def calGrade(request):
         place = models.ExamPlace.objects.get(id=placeId)
         grades = models.Grade.objects.get(sid=sid, pid=placeId)
 
-        # 计算该门考试的学生成绩
+        # 将学生答案存入主观题
+        subQuestion = models.Paper.objects.filter(id=place.pid).values("sqid").values('sqid__id', 'sqid__totalScore')
+        for sq in subQuestion:
+            sqId = str(sq['sqid__id'])  # int 转 string,通过sqid找到主观题号
+            myans = request.POST.get('sq' + sqId)  # 通过 sqid 得到学生关于该题的作答
+            # 注意这边create要带参数直接创建，不然外键会报错，注意这边外键命名,不大一样，跟本地mysql数据库吻合
+            stusub = models.StuSubQues.objects.create(sid_id=sid, sqid_id=sq['sqid__id'], answer=myans)
+            stusub.save()
+
+        # 计算客观题成绩
         question = models.Paper.objects.filter(id=place.pid).values("qid").values('qid__id', 'qid__answer',
                                                                                   'qid__score')
         mygrade = 0  # 初始化一个成绩为0
         for q in question:
             qId = str(q['qid__id'])  # int 转 string,通过qid找到题号
-            myans = request.POST.get(qId)  # 通过 qid 得到学生关于该题的作答
+            myans = request.POST.get(qId)  # 通过 qid 得到学生关于该题的作答,这个qId是怎么来的呢，可以见exam.html搜索name="{{ test.id }}"
             # print(myans)
             okans = q['qid__answer']  # 得到正确答案
             # print(okans)
@@ -207,18 +219,20 @@ def calGrade(request):
                 mygrade += q['qid__score']  # 若一致,得到该题的分数,累加mygrade变量
 
         # Grade表更新数据
-        grades.grade = mygrade
+        grades.objectGrade = mygrade
         grades.save()
         # print(mygrade)
 
+        """
         # Student表更新数据,取更大的
         if place.type == 'CET4':
             student.f_score = max(mygrade, student.f_score)
         else:
             student.s_score = max(mygrade, student.s_score)
+        """
 
         # 重新渲染index.html模板
-        place = models.ExamPlace.objects.all().order_by("time")
+        place = models.ExamPlace.objects.all().order_by("-time")
         grade = models.Grade.objects.filter(sid=sid)
         # 查询考试信息（exam是有报名的place)
         grade_pid = []
@@ -267,13 +281,46 @@ def dictfetchall(cursor):
         for row in cursor.fetchall()
     ]
 
-#试试能不能显示一个二维码
+
+# 试试能不能显示一个二维码
 def QR_out(request):
-  input_text = request.GET['id']
-  img = qrcode.make(input_text)
-  img.save('examSystem/static/qr_code.png')
-  return render(request, 'examSystem/qr.html', {
-    'input_text': input_text,
-    'img': img,
-    'title': 'QR_out'
-  })
+    input_text = request.GET['id']
+    img = qrcode.make(input_text)
+    img.save('examSystem/static/qr_code.png')
+    return render(request, 'examSystem/qr.html', {
+        'input_text': input_text,
+        'img': img,
+        'title': 'QR_out'
+    })
+
+
+# 教师批改主观题的目录栏
+def correSub(request):
+    # 获取考点
+    placeId = request.GET.get('pid')
+    place = models.ExamPlace.objects.get(id=placeId)
+    # 获取参与此次考试的学生列表
+    grade = models.Grade.objects.filter(pid=placeId)
+    student_id = []
+    for i in range(len(grade)):
+        student_id.append(grade[i].sid)
+    # __in表示数据库中的in操作符
+    student_list = models.Student.objects.filter(id__in=student_id)
+    return render(request, 'teacher1.html', {'student': student_list, 'place': place})
+
+
+# 批改主页面
+def mark(request):
+    sid = request.GET.get('sid')
+    pid = request.GET.get('pid')
+    student = models.Student.objects.get(id=sid)
+    place = models.ExamPlace.objects.get(id=pid)
+    paper = models.Paper.objects.get(id=place.pid)
+    stuSubs = models.StuSubQues.objects.filter(sid=sid, sqid__in=paper.sqid.all())
+    sqid_list = []
+    for i in range(len(stuSubs)):
+        sqid_list.append(int(str(stuSubs[i].sqid)))
+    stuSub_list = zip(stuSubs, sqid_list)
+
+    return render(request, 'mark.html', {'student': student, 'place': place, 'paper': paper,
+                                         'stuSub_list': list(stuSub_list)})

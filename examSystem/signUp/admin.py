@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import Student, Teacher, Paper, Question, ExamPlace, Grade
+from .models import Student, Teacher, Paper, Question, SubQuestion, StuSubQues, ExamPlace, Grade
 
 admin.site.site_header = '英语四六级报考系统后台'
 admin.site.site_title = '英语四六级报考系统'
@@ -29,6 +29,16 @@ class QuestionAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'optionA', 'optionB', 'optionC', 'optionD', 'answer', 'level', 'score')
 
 
+@admin.register(SubQuestion)
+class SubQuestionAdmin(admin.ModelAdmin):
+    list_display = ('id', 'title', 'level', 'totalScore')
+
+
+@admin.register(StuSubQues)
+class StuSubQuesAdmin(admin.ModelAdmin):
+    list_display = ('id', 'sid', 'sqid', 'answer', 'score')
+
+
 @admin.register(Paper)
 class PaperAdmin(admin.ModelAdmin):
     list_display = ('id', 'tid', 'type')
@@ -36,7 +46,7 @@ class PaperAdmin(admin.ModelAdmin):
 
 @admin.register(ExamPlace)
 class ExamPlaceAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'type', 'number', 'entry_number', 'pid', )
+    list_display = ('id', 'name', 'type', 'number', 'entry_number', 'pid',)
 
 
 @admin.register(Grade)

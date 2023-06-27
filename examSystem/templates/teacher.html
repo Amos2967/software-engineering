@@ -47,6 +47,9 @@
       <a class="nav-link active" data-toggle="pill" href="#home">个人信息</a>
     </li>
     <li class="nav-item">
+      <a class="nav-link" data-toggle="pill" href="#menu0">试卷批改</a>
+    </li>
+    <li class="nav-item">
       <a class="nav-link" data-toggle="pill" href="#menu1">成绩统计</a>
     </li>
     <li class="nav-item active">
@@ -105,6 +108,44 @@
 
     </tbody>
   </table>
+    </div>
+
+    <div id="menu0" class="container tab-pane fade"><br>
+      <h3>试卷信息</h3>
+      <p></p>
+      <table class="table">
+      <thead>
+        <tr>
+          <th>试卷编号</th>
+          <th>考点编号</th>
+          <th>考试类别</th>
+          <th>考试人数</th>
+          <th>考试时间</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+    <tbody>
+    {#   遍历字典  place #}
+    {% for place1 in place %}
+     <tr class="table-info">
+          <td>{{ place1.pid }}</td>
+          <td>{{ place1.id }}</td>
+          <td>{{ place1.type}}</td>
+          <td>{{ place1.entry_number }}</td>
+          <td>{{ place1.time }}</td>
+          <td>
+              {% if place1.id == '2' or place1.id == '4' %}
+                <a href="/correSub/?pid={{ place1.id }}">
+                <button class="btn btn-primary" id="cet_btn">批改试卷</button>
+              {% else %}
+                  批改已结束
+              {% endif %}
+             </a>
+          </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+     </table>
     </div>
 
     <div id="menu1" class="container tab-pane fade"><br>

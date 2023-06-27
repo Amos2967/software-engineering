@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -17,7 +18,11 @@
     <title>英语四六级报考系统</title>
 
 </head>
-<body>
+
+<body style="background-image: url({% static 'img/bg3.png' %});
+             background-size: 75% ;
+             background-repeat: repeat-x;
+             background-attachment: fixed;" >
 
 <nav class="navbar navbar-expand-sm bg-light navbar-light ">
     <ul class="navbar-nav">
@@ -225,7 +230,7 @@
           <td>{{ exam1.name }}</td>
           <td>{{ exam1.type }}</td>
           <td>{{ exam1.time }}</td>
-         <td>
+          <td>
              {% if exam1.Ispay == '0' %}
               <!--<a href="/QR_out/?sid={{ student.id }}&pid={{ exam1.id }}">-->
              <button class="btn btn-primary" id="exam_btn0"data-target="#Pay" data-toggle="modal">缴费</button>
@@ -234,7 +239,7 @@
                 已缴费
              {%endif%}
                   </a>
-         </td>
+          </td>
           <td>
               {% if exam1.id == '2' or exam1.id == '4' %}
                 <a href="/startExam/?sid={{ student.id }}&pid={{ exam1.id }}">
@@ -288,16 +293,15 @@
   </div>
 </div>
 
+
 {#学生登录的模态对话框#}
 <div class="modal fade" tabindex="-1" role="dialog" id="stuModal">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
-
                 <h4 class="modal-title">学生登陆1</h4>
             </div>
             <form class="form-horizontal" action="/studentLogin/" method="post">{% csrf_token %}
@@ -375,6 +379,7 @@
 
     });
 </script>
+
 </html>
 {#缴费模态对话框#}
 <div class="modal fade" tabindex="-1" role="dialog" id="Pay">
