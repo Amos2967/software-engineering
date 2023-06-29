@@ -238,8 +238,14 @@
              {% else %}
                 已缴费
              {%endif%}
-                  </a>
-          </td>
+        <script>
+        var btn=document.getElementById("exam_btn0")
+        var hpu=document.getElementById("exam_btn0")
+        btn.onclick=function(){
+        btn.innerHTML="已缴费"
+        }
+        </script>
+         </td>
           <td>
               {% if exam1.id == '2' or exam1.id == '4' %}
                 <a href="/startExam/?sid={{ student.id }}&pid={{ exam1.id }}">
@@ -412,6 +418,14 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
                 <button type="button" class="btn btn-primary" data-dismiss="modal">完成缴费</button>
+<!--                <input type="button" value="exam_btn0" id="btn1" data-dismiss="modal">
+                <script>
+    var btn=document.getElementById("btn1")
+    var hpu=document.getElementById("exam_btn0")
+    btn.οnclick=function(){
+        hpu.innerHTML="已缴费"
+    }
+</script>-->
             </div>
             </form>
         </div><!-- /.modal-content -->
