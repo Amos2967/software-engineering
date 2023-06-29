@@ -41,7 +41,7 @@
 .reg_back {
     /*设置整体的尺寸、背景色、边距等*/
     width: 850px;
-    height: 400px;
+    height: 550px;
     border: 8px solid #eeeeee;
     background: white;
     margin: auto;

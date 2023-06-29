@@ -19,7 +19,31 @@ def index(request):
 
 # 注册首页
 def register(request):
+    if request.method == 'POST':
+        # 获取注册信息
+        username = str(request.POST.get('username'))
+        rename = str(request.POST.get('rename'))
+        gender = str(request.POST.get('gender'))
+        school = str(request.POST.get('school'))
+        dept = str(request.POST.get('dept'))
+        major = str(request.POST.get('major'))
+        password = str(request.POST.get('password'))
+        email = str(request.POST.get('Email'))
+        birthday = request.POST.get('Birthday')
+        print(birthday)
+        print(type(birthday))
+        idtype = str(request.POST.get('idtype'))
+        identify = str(request.POST.get('identify'))
+
+        from django.db import connection, transaction
+        cursor = connection.cursor()
+        sql = "insert into student values ('%s','%s','%s','%s','%s','%s','%s','%s','%s','0','0','%s','%s','本科','无')" % (username, rename, gender, school, dept, major, password, email, birthday, idtype, identify)
+        cursor.execute(sql)
+        result = dictfetchall(cursor)
+        print(result)
+
     return render(request, 'register.html')
+
 
 
 # 学生登陆 视图函数

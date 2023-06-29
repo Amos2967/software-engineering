@@ -5,6 +5,77 @@
     <meta charset="UTF-8">
     <title>注册</title>
     <link rel="stylesheet" href="../static/css/register.css">
+    <script type="text/javascript">
+        function username1() {
+            var username = document.getElementById("username").value;
+            var str = /^\d+$/.test(username);
+            if(username == ""){
+                document.getElementById("un").innerHTML = "学号不能为空";
+            }
+            else if(!str){
+                document.getElementById("un").innerHTML = "只能输入数字";
+                return false;
+            }
+            else{
+                document.getElementById("un").innerHTML = "";
+                return true;
+            }
+        }
+        function rename1(){
+            var rename = document.getElementById("rename").value;
+            var check = "[\u4e00-\u9fa5]";
+            var ex = new RegExp(check);
+            if(rename.search(ex)!=-1){
+                document.getElementById("rn").innerHTML = "";
+            }
+            else{
+                document.getElementById("rn").innerHTML = "请输入中文";
+            }
+        }
+        function password1(){
+		    var password = document.getElementById("password").value;
+		    if(password.length<6){
+		        document.getElementById("pw").innerHTML = "密码必须大于六位";
+	    		return;
+	    	}
+	    	else{
+		    	var count=0;
+		    	for(var i=0;i<password.length;i++){
+		    		if((password[i]>='a' && password[i]<='z')||(password[i]>='A' && password[i]<='Z')){
+		    			count++;
+		    		}
+		    	}
+		    	if(count>=2){
+		    		document.getElementById("pw").innerHTML = "";
+		    	}
+		    	else{
+		    	    document.getElementById("pw").innerHTML = "密码必须含有两位字母";
+		    	}
+		    }
+	    }
+        function identify1(){
+            //验证身份证格式
+            var identify = document.getElementById("identify").value;
+            var idCardReg = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/;
+            var iFlag = idCardReg.test(identify);
+            if(!iFlag){
+                document.getElementById("ic").innerHTML = "请输入正确的身份证号";
+                return false;
+            }
+            else{
+                document.getElementById("ic").innerHTML = "";
+            }
+        }
+        function finish(){
+            alert("注册完成")
+        }
+    </script>
+    <script>
+        $.ajaxSetup({
+        data:{csrfmiddlewaretoken:'{{ csrf_token }}'}
+        });
+    </script>
+
 </head>
 <body style="background-image: url({% static 'img/bg3.png' %});
              background-size: 80% ;
@@ -28,42 +99,22 @@
     </div>
     <div class="reg_center">
         <div class="reg_form">
-            <form action="#" method="post">
+            <form action="/register/" method="post">{% csrf_token %}
+                <!-- id,name,sex,school,dept,major,password,email,birth,ID_type,ID_NO,degree-->
+                <!-- 学号，姓名，性别，学校，学院，专业，密码，邮箱，生日，身份证类型，身份证号，学位-->
                 <table>
                     <tr>
                         <td class="td_left"><label for="username">学号</label></td>
                         <td class="td_right"><input type="text" name="username" placeholder="请输入学号"
-                                                    id="username"></td>
-                    </tr>
-                    <tr>
-                        <td class="td_left"><label for="password">密码</label></td>
-                        <td class="td_right"><input type="password" name="password" placeholder="请输入密码"
-                                                    id="password"></td>
-                    </tr>
-                    <tr>
-                        <td class="td_left"><label for="Email">Email</label></td>
-                        <td class="td_right"><input type="email" name="email" placeholder="请输入Email" id="Email">
-                        </td>
+                                                    id="username" onblur="username1()">
+                            <span style="font-size:10px;color:red;" id="un"></span></td>
                     </tr>
                     <tr>
                         <td class="td_left"><label for="rename">姓名</label></td>
-                        <td class="td_right"><input type="text" name="rename" placeholder="请输入真实姓名" id="rename">
+                        <td class="td_right"><input type="text" name="rename" placeholder="请输入真实姓名" id="rename"
+                                                    onblur="rename1()">
+                            <span style="font-size:10px;color:red;" id="rn"></span>
                         </td>
-                    </tr>
-                    <tr>
-                        <td class="td_left"><label for="identify">身份证号</label></td>
-                        <td class="td_right"><input type="text" name="identify" placeholder="请输入身份证号" id="identify"
-                                                    style="width: 200px;height: 30px;border: 1px solid #A4A4A4;
-                                                    border-radius: 8px;
-                                                    padding-left: 10px;">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="td_left"><label for="Telephone">手机号</label></td>
-                        <td class="td_right"><input type="text" name="Telephone" placeholder="请输入您的手机号" id="Telephone"
-                        style="width: 200px;height: 30px;border: 1px solid #A4A4A4;
-                                                    border-radius: 8px;
-                                                    padding-left: 10px;"></td>
                     </tr>
                     <tr>
                         <td class="td_left"><label>性别</label></td>
@@ -72,11 +123,78 @@
                         </td>
                     </tr>
                     <tr>
-                        <td class="td_left"><label for="Birthday">出生日期</label></td>
-                        <td class="td_right"><input type="date" name="birthday" id="Birthday"></td>
+                        <td class="td_left"><label for="school">学校</label></td>
+                        <td class="td_right"><input type="text" name="school" placeholder="请输入你的学校" id="school"
+                         style="width: 200px;height: 30px;border: 1px solid #A4A4A4;
+                                                    border-radius: 8px;
+                                                    padding-left: 10px;">
+                        </td>
                     </tr>
                     <tr>
-                        <td colspan="2" align="center"><input type="submit" value="注册" id="btn_sub"></td>
+                        <td class="td_left"><label for="dept">学院</label></td>
+                        <td class="td_right"><input type="text" name="dept" placeholder="请输入你的学院" id="dept"
+                         style="width: 200px;height: 30px;border: 1px solid #A4A4A4;
+                                                    border-radius: 8px;
+                                                    padding-left: 10px;">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="td_left"><label for="major">专业</label></td>
+                        <td class="td_right"><input type="text" name="major" placeholder="请输入你的学院" id="major"
+                         style="width: 200px;height: 30px;border: 1px solid #A4A4A4;
+                                                    border-radius: 8px;
+                                                    padding-left: 10px;">
+                        </td>
+                    </tr>
+                    <!--
+                    <tr>
+                        <td class="td_left"><label>学院</label></td>
+                        <td class="td_right"><select style="width: 200px;height: 30px;border: 1px solid #A4A4A4;
+                                                    border-radius: 8px;
+                                                    padding-left: 10px;">
+                            <option>计算机与通信学院</option>
+                            <option>电气与自动化学院</option>
+                            <option>外国语学院</option>
+                            <option>理学院</option>
+                        </select>
+                    </tr>-->
+                    <tr>
+                        <td class="td_left"><label for="password">密码</label></td>
+                        <td class="td_right"><input type="password" name="password" placeholder="请输入密码"
+                                                    id="password" onblur="password1()">
+                        <span style="font-size:10px;color:red;" id="pw"></span></td>
+                    </tr>
+                    <tr>
+                        <td class="td_left"><label for="Email">Email</label></td>
+                        <td class="td_right"><input type="email" name="Email" placeholder="请输入Email" id="Email">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="td_left"><label for="Birthday">出生日期</label></td>
+                        <td class="td_right"><input type="date" name="Birthday" id="Birthday"></td>
+                    </tr>
+                    <tr>
+                        <td class="td_left"><label>身份证类型</label></td>
+                        <td class="td_right"><select id="idtype" style="width: 200px;height: 30px;border: 1px solid #A4A4A4;
+                                                    border-radius: 8px;
+                                                    padding-left: 10px;">
+                            <option>中华人民共和国居民身份证</option>
+                            <option>港澳居民来往内地通行证</option>
+                            <option>台湾居民来往大陆通行证</option>
+                        </select>
+                    </tr>
+                    <tr>
+                        <td class="td_left"><label for="identify">身份证号</label></td>
+                        <td class="td_right"><input type="text" name="identify" placeholder="请输入身份证号" id="identify"
+                                                    style="width: 200px;height: 30px;border: 1px solid #A4A4A4;
+                                                    border-radius: 8px;
+                                                    padding-left: 10px;" onblur="identify1()">
+                            <span style="font-size:10px;color:red;" id="ic"></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" align="center">
+                            <input type="submit" value="注册" id="btn_sub" onclick="finish()"></td>
                     </tr>
                 </table>
             </form>
